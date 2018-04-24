@@ -240,6 +240,7 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
   protected HidingLinearLayout     quickAttachmentToggle;
   private   QuickAttachmentDrawer  quickAttachmentDrawer;
   private   InputPanel             inputPanel;
+  private   QuickReplyTextWatcher  quickReplyTextWatcher;
 
   private Recipient  recipient;
   private long       threadId;
@@ -321,6 +322,9 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
   protected void onStart() {
     super.onStart();
     EventBus.getDefault().register(this);
+
+    quickReplyTextWatcher = new QuickReplyTextWatcher();
+    composeText.addTextChangedListener(quickReplyTextWatcher);
   }
 
   @Override
@@ -365,6 +369,9 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
   protected void onStop() {
     super.onStop();
     EventBus.getDefault().unregister(this);
+
+    composeText.removeTextChangedListener(quickReplyTextWatcher);
+    quickReplyTextWatcher = null;
   }
 
   @Override
@@ -2069,9 +2076,49 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
   }
 
   @Override
+  public void setQuickReply(@Nullable MessageRecord messageRecord) {
+    if (messageRecord != null && quickReplyTextWatcher != null) {
+      composeText.setHint(getString(R.string.conversation_activity__type_reply), null);
+      quickReplyTextWatcher.setMessageRecord(messageRecord);
+    } else {
+      composeText.setTransport(sendButton.getSelectedTransport());
+      quickReplyTextWatcher.setMessageRecord(null);
+    }
+  }
+
+
+  @Override
   public void onAttachmentChanged() {
     handleSecurityChange(isSecureText, isDefaultSms);
     updateToggleButtonState();
+  }
+
+  private class QuickReplyTextWatcher implements TextWatcher {
+
+    @Nullable
+    private MessageRecord messageRecord;
+
+    void setMessageRecord(@Nullable MessageRecord messageRecord) {
+      this.messageRecord = messageRecord;
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+      if (messageRecord != null) {
+        handleReplyMessage(messageRecord);
+        fragment.exitMultiSelect();
+      }
+    }
   }
 
   private class UnverifiedDismissedListener implements UnverifiedBannerView.DismissListener {
