@@ -6,7 +6,6 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +19,7 @@ import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.components.AccessibleToggleButton;
 import org.thoughtcrime.securesms.util.ServiceUtil;
 import org.thoughtcrime.securesms.util.ViewUtil;
+import org.thoughtcrime.securesms.webrtc.CameraState;
 
 public class WebRtcCallControls extends LinearLayout {
 
@@ -27,9 +27,10 @@ public class WebRtcCallControls extends LinearLayout {
 
   private AccessibleToggleButton audioMuteButton;
   private AccessibleToggleButton videoMuteButton;
-  private AccessibleToggleButton cameraFlipButton;
   private AccessibleToggleButton speakerButton;
   private AccessibleToggleButton bluetoothButton;
+  private AccessibleToggleButton cameraFlipButton;
+  private boolean cameraFlipAvailable;
 
   @TargetApi(Build.VERSION_CODES.LOLLIPOP)
   public WebRtcCallControls(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
@@ -62,7 +63,6 @@ public class WebRtcCallControls extends LinearLayout {
     this.audioMuteButton = ViewUtil.findById(this, R.id.muteButton);
     this.videoMuteButton = ViewUtil.findById(this, R.id.video_mute_button);
     this.cameraFlipButton = ViewUtil.findById(this, R.id.camera_flip_button);
-    this.cameraFlipButton.setVisibility(View.INVISIBLE); // shown once video is enabled
   }
 
   public void setAudioMuteButtonListener(final MuteButtonListener listener) {
@@ -80,7 +80,7 @@ public class WebRtcCallControls extends LinearLayout {
       public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         boolean videoMuted = !isChecked;
         listener.onToggle(videoMuted);
-        cameraFlipButton.setVisibility(videoMuted ? View.INVISIBLE : View.VISIBLE);
+        cameraFlipButton.setVisibility(!videoMuted && cameraFlipAvailable ? View.VISIBLE : View.GONE);
       }
     });
   }
@@ -89,7 +89,7 @@ public class WebRtcCallControls extends LinearLayout {
     cameraFlipButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
       @Override
       public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        listener.onToggle(isChecked);
+        listener.onToggle(isChecked ? CameraState.Direction.BACK : CameraState.Direction.FRONT);
       }
     });
   }
@@ -143,6 +143,14 @@ public class WebRtcCallControls extends LinearLayout {
     videoMuteButton.setChecked(enabled, false);
   }
 
+  public void setVideoAvailable(boolean available) {
+    videoMuteButton.setVisibility(available ? VISIBLE : GONE);
+  }
+
+  public void setCameraFlipAvailable(boolean available) {
+    cameraFlipAvailable = available;
+  }
+
   public void setMicrophoneEnabled(boolean enabled) {
     audioMuteButton.setChecked(!enabled, false);
   }
@@ -176,7 +184,7 @@ public class WebRtcCallControls extends LinearLayout {
   }
 
   public void displayVideoTooltip(ViewGroup viewGroup) {
-    if (Build.VERSION.SDK_INT > 15) {
+    if (Build.VERSION.SDK_INT > 15 && videoMuteButton.getVisibility() == VISIBLE) {
       final ToolTipsManager toolTipsManager = new ToolTipsManager();
 
       ToolTip toolTip = new ToolTip.Builder(getContext(), videoMuteButton, viewGroup,
@@ -184,12 +192,7 @@ public class WebRtcCallControls extends LinearLayout {
                                             ToolTip.POSITION_BELOW).build();
       toolTipsManager.show(toolTip);
 
-      videoMuteButton.postDelayed(new Runnable() {
-        @Override
-        public void run() {
-          toolTipsManager.findAndDismiss(videoMuteButton);
-        }
-      }, 4000);
+      videoMuteButton.postDelayed(() -> toolTipsManager.findAndDismiss(videoMuteButton), 4000);
     }
   }
 
@@ -198,7 +201,7 @@ public class WebRtcCallControls extends LinearLayout {
   }
 
   public static interface CameraFlipButtonListener {
-    public void onToggle(boolean isRear);
+    public void onToggle(CameraState.Direction newDirection);
   }
 
   public static interface SpeakerButtonListener {

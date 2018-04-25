@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import org.thoughtcrime.securesms.recipients.Recipient;
+import org.thoughtcrime.securesms.webrtc.CameraState;
 import org.whispersystems.libsignal.IdentityKey;
 
 public class WebRtcViewModel {
@@ -30,40 +31,58 @@ public class WebRtcViewModel {
   private final @Nullable IdentityKey identityKey;
 
   private final boolean remoteVideoEnabled;
-  private final boolean localVideoEnabled;
 
   private final boolean isBluetoothAvailable;
   private final boolean isMicrophoneEnabled;
 
-  public WebRtcViewModel(@NonNull State state, @NonNull Recipient recipient,
-                         boolean localVideoEnabled, boolean remoteVideoEnabled,
-                         boolean isBluetoothAvailable, boolean isMicrophoneEnabled)
+  private final CameraState localCameraState;
+
+  public WebRtcViewModel(@NonNull State       state,
+                         @NonNull Recipient   recipient,
+                         @NonNull CameraState localCameraState,
+                                  boolean     remoteVideoEnabled,
+                                  boolean     isBluetoothAvailable,
+                                  boolean     isMicrophoneEnabled)
   {
-    this(state, recipient, null,
-         localVideoEnabled, remoteVideoEnabled,
-         isBluetoothAvailable, isMicrophoneEnabled);
+    this(state,
+         recipient,
+         null,
+         localCameraState,
+         remoteVideoEnabled,
+         isBluetoothAvailable,
+         isMicrophoneEnabled);
   }
 
-  public WebRtcViewModel(@NonNull State state, @NonNull Recipient recipient,
+  public WebRtcViewModel(@NonNull  State       state,
+                         @NonNull  Recipient   recipient,
                          @Nullable IdentityKey identityKey,
-                         boolean localVideoEnabled, boolean remoteVideoEnabled,
-                         boolean isBluetoothAvailable, boolean isMicrophoneEnabled)
+                         @NonNull  CameraState localCameraState,
+                                   boolean     remoteVideoEnabled,
+                                   boolean     isBluetoothAvailable,
+                                   boolean     isMicrophoneEnabled)
   {
     this.state                = state;
     this.recipient            = recipient;
+    this.localCameraState     = localCameraState;
     this.identityKey          = identityKey;
-    this.localVideoEnabled    = localVideoEnabled;
     this.remoteVideoEnabled   = remoteVideoEnabled;
     this.isBluetoothAvailable = isBluetoothAvailable;
     this.isMicrophoneEnabled  = isMicrophoneEnabled;
   }
 
-  public @NonNull State getState() {
+  @NonNull
+  public State getState() {
     return state;
   }
 
-  public @NonNull Recipient getRecipient() {
+  @NonNull
+  public Recipient getRecipient() {
     return recipient;
+  }
+
+  @NonNull
+  public CameraState getLocalCameraState() {
+    return localCameraState;
   }
 
   @Nullable
@@ -75,10 +94,6 @@ public class WebRtcViewModel {
     return remoteVideoEnabled;
   }
 
-  public boolean isLocalVideoEnabled() {
-    return localVideoEnabled;
-  }
-
   public boolean isBluetoothAvailable() {
     return isBluetoothAvailable;
   }
@@ -87,7 +102,8 @@ public class WebRtcViewModel {
     return isMicrophoneEnabled;
   }
 
+
   public String toString() {
-    return "[State: " + state + ", recipient: " + recipient.getAddress() + ", identity: " + identityKey + ", remoteVideo: " + remoteVideoEnabled + ", localVideo: " + localVideoEnabled + "]";
+    return "[State: " + state + ", recipient: " + recipient.getAddress() + ", identity: " + identityKey + ", remoteVideo: " + remoteVideoEnabled + ", localVideo: " + localCameraState.isEnabled() + "]";
   }
 }

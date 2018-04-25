@@ -49,6 +49,7 @@ import org.thoughtcrime.securesms.service.WebRtcCallService;
 import org.thoughtcrime.securesms.util.ServiceUtil;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
 import org.thoughtcrime.securesms.util.ViewUtil;
+import org.thoughtcrime.securesms.webrtc.CameraState;
 import org.whispersystems.libsignal.IdentityKey;
 import org.whispersystems.libsignal.SignalProtocolAddress;
 
@@ -160,10 +161,10 @@ public class WebRtcCallActivity extends Activity {
     startService(intent);
   }
 
-  private void handleSetCameraFlip(boolean isRear) {
+  private void handleSetCameraDirection(CameraState.Direction direction) {
     Intent intent = new Intent(this, WebRtcCallService.class);
-    intent.setAction(WebRtcCallService.ACTION_SET_CAMERA_FLIP);
-    intent.putExtra(WebRtcCallService.EXTRA_CAMERA_FLIP_REAR, isRear);
+    intent.setAction(WebRtcCallService.ACTION_SET_CAMERA_DIRECTION);
+    intent.putExtra(WebRtcCallService.EXTRA_CAMERA_DIRECTION, direction);
     startService(intent);
   }
 
@@ -330,7 +331,7 @@ public class WebRtcCallActivity extends Activity {
       case UNTRUSTED_IDENTITY:      handleUntrustedIdentity(event);        break;
     }
 
-    callScreen.setLocalVideoEnabled(event.isLocalVideoEnabled());
+    callScreen.setLocalVideoState(event.getLocalCameraState());
     callScreen.setRemoteVideoEnabled(event.isRemoteVideoEnabled());
     callScreen.updateAudioState(event.isBluetoothAvailable(), event.isMicrophoneEnabled());
     callScreen.setControlsEnabled(event.getState() != WebRtcViewModel.State.CALL_INCOMING);
@@ -358,7 +359,9 @@ public class WebRtcCallActivity extends Activity {
 
   private class CameraFlipButtonListener implements WebRtcCallControls.CameraFlipButtonListener {
     @Override
-    public void onToggle(boolean isRear) { WebRtcCallActivity.this.handleSetCameraFlip(isRear); }
+    public void onToggle(CameraState.Direction newDirection) {
+      WebRtcCallActivity.this.handleSetCameraDirection(newDirection);
+    }
   }
 
   private class SpeakerButtonListener implements WebRtcCallControls.SpeakerButtonListener {
