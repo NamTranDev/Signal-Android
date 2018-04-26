@@ -192,10 +192,10 @@ public class WebRtcCallScreen extends FrameLayout implements RecipientModifiedLi
   public void setLocalVideoState(@NonNull CameraState cameraState) {
     this.controls.setVideoAvailable(cameraState.isAvailable());
     this.controls.setVideoEnabled(cameraState.isEnabled());
-    this.controls.setCameraFlipAvailable(cameraState.getCount() > 1);
+    this.controls.setCameraFlipAvailable(cameraState.getCameraCount() > 1);
 
     if (this.localRenderer != null) {
-      this.localRenderer.setMirror(cameraState.getActive() == CameraState.Direction.FRONT);
+      this.localRenderer.setMirror(cameraState.getActiveDirection() == CameraState.Direction.FRONT);
     }
 
     if (this.localRenderLayout.isHidden() == cameraState.isEnabled()) {

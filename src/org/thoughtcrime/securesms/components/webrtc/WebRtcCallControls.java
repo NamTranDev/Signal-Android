@@ -30,7 +30,7 @@ public class WebRtcCallControls extends LinearLayout {
   private AccessibleToggleButton speakerButton;
   private AccessibleToggleButton bluetoothButton;
   private AccessibleToggleButton cameraFlipButton;
-  private boolean cameraFlipAvailable;
+  private boolean                cameraFlipAvailable;
 
   @TargetApi(Build.VERSION_CODES.LOLLIPOP)
   public WebRtcCallControls(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {

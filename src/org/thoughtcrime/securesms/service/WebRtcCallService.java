@@ -116,7 +116,7 @@ public class WebRtcCallService extends Service implements InjectableType, PeerCo
 
   public static final String EXTRA_REMOTE_ADDRESS     = "remote_address";
   public static final String EXTRA_MUTE               = "mute_value";
-  public static final String EXTRA_CAMERA_DIRECTION = "camera_flip_rear_value";
+  public static final String EXTRA_CAMERA_DIRECTION   = "camera_flip_rear_value";
   public static final String EXTRA_AVAILABLE          = "enabled_value";
   public static final String EXTRA_REMOTE_DESCRIPTION = "remote_description";
   public static final String EXTRA_TIMESTAMP          = "timestamp";
@@ -812,13 +812,11 @@ public class WebRtcCallService extends Service implements InjectableType, PeerCo
     CameraState.Direction direction = (CameraState.Direction) intent.getSerializableExtra(EXTRA_CAMERA_DIRECTION);
     Log.w(TAG, "handleSetCameraFlip(direction=" + direction + ")...");
 
-    if (this.localCameraState.isEnabled()) {
-      if (this.peerConnection != null) {
-        this.peerConnection.setCameraDirection(direction);
-        this.localCameraState = this.peerConnection.getCameraState();
-        if (recipient != null) {
-          sendMessage(viewModelStateFor(callState), recipient, localCameraState, remoteVideoEnabled, bluetoothAvailable, microphoneEnabled);
-        }
+    if (localCameraState.isEnabled() && peerConnection != null) {
+      peerConnection.setCameraDirection(direction);
+      localCameraState = peerConnection.getCameraState();
+      if (recipient != null) {
+        sendMessage(viewModelStateFor(callState), recipient, localCameraState, remoteVideoEnabled, bluetoothAvailable, microphoneEnabled);
       }
     }
   }

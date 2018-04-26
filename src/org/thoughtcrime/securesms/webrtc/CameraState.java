@@ -6,28 +6,28 @@ public class CameraState {
 
   public static final CameraState UNKNOWN = new CameraState(Direction.NONE, 0);
 
-  private final int       count;
-  private final Direction active;
+  private final Direction activeDirection;
+  private final int       cameraCount;
 
-  public CameraState(@NonNull Direction active, int count) {
-    this.active = active;
-    this.count  = count;
+  public CameraState(@NonNull Direction activeDirection, int cameraCount) {
+    this.activeDirection = activeDirection;
+    this.cameraCount = cameraCount;
   }
 
-  public int getCount() {
-    return count;
+  public int getCameraCount() {
+    return cameraCount;
   }
 
-  public Direction getActive() {
-    return active;
+  public Direction getActiveDirection() {
+    return activeDirection;
   }
 
   public boolean isEnabled() {
-    return this.active != Direction.NONE;
+    return this.activeDirection != Direction.NONE;
   }
 
   public boolean isAvailable() {
-    return count > 0;
+    return cameraCount > 0;
   }
 
   public enum Direction {

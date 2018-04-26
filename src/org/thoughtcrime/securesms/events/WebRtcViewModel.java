@@ -70,23 +70,19 @@ public class WebRtcViewModel {
     this.isMicrophoneEnabled  = isMicrophoneEnabled;
   }
 
-  @NonNull
-  public State getState() {
+  public @NonNull State getState() {
     return state;
   }
 
-  @NonNull
-  public Recipient getRecipient() {
+  public @NonNull Recipient getRecipient() {
     return recipient;
   }
 
-  @NonNull
-  public CameraState getLocalCameraState() {
+  public @NonNull CameraState getLocalCameraState() {
     return localCameraState;
   }
 
-  @Nullable
-  public IdentityKey getIdentityKey() {
+  public @Nullable IdentityKey getIdentityKey() {
     return identityKey;
   }
 

@@ -263,7 +263,6 @@ public class PeerConnectionWrapper {
     this.audioSource.dispose();
     this.peerConnection.close();
     this.peerConnection.dispose();
-    // TODO: mediastream.dispose()?
   }
 
   public boolean addIceCandidate(IceCandidate candidate) {
